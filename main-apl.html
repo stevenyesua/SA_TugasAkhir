@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supplier APL</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="navbar">
+        <div class="title">
+            <h3 style="font-weight:600">GREEDY SEARCH</h3>
+        </div>
+        <div class="contents">
+            <div class="content-1">
+                <h5 style="font-weight:500">Lokasi Awal : </h5> 
+                <h5 style="color:white;font-weight: 400;" class="lokasi-awal">Jassen Elektronik</h5>
+            </div>
+            <div class="content-2">
+                <h5 style="font-weight:500">Max - Min Greedy</h5> 
+                <select id="select-max-min" onChange="renderMap()">
+                    <option value="max">MAX</option>
+                    <option value="min">MIN</option>
+                </select>  
+            </div>
+            <div class="content-3">
+                <h5 style="font-weight:500">Greedy by</h5> 
+                <select id="select-variasi" onChange="renderMap()">
+                    <option value="jarak">Jarak</option>
+                    <option value="profit">Profit</option>
+                    <option value="beban">Beban</option>
+                </select>  
+            </div>
+            <div class="content-4">
+                <h5 style="font-weight:500">Beban</h5> 
+                <button type="button" class="collapsible" style="background-color: red;">
+                    <h5 style="font-weight:500">Beban</h5>
+                </button>
+                <div class="content">
+                    <h5 style="font-weight: 500;">Max Beban</h5>
+					<input type="text" placeholder="500" id="max-weight" class="input-max-beban">
+                    <h5 style="font-weight: 500;">Jassen Elektronik</h5>
+					<input type="text" placeholder="500" id="weight-1" class="input-beban">
+                    <h5 style="font-weight: 500;">Yudi Service Elektronik</h5>
+					<input type="text" placeholder="500" id="weight-2" class="input-beban">
+                    <h5 style="font-weight: 500;">Anto Service Elektronik</h5>
+					<input type="text" placeholder="500" id="weight-3" class="input-beban">
+                    <h5 style="font-weight: 500;">Service TV Cas Aki</h5>
+					<input type="text" placeholder="500" id="weight-4" class="input-beban">
+                    <h5 style="font-weight: 500;">Trisno Jaya Servis</h5>
+					<input type="text" placeholder="500" id="weight-5" class="input-beban">
+                    <h5 style="font-weight: 500;">Zul Service Elektronik</h5>
+					<input type="text" placeholder="500" id="weight-6" class="input-beban">
+                    <h5 style="font-weight: 500;">Titi Service Elektornik</h5>
+					<input type="text" placeholder="500" id="weight-7" class="input-beban">
+                </div>
+            </div>
+            <div class="content-5">
+                <h5 style="font-weight:500">Profit</h5> 
+                <button type="button" class="collapsible" style="background-color: green;">
+                    <h5 style="font-weight:500">Profit</h5>
+                </button>
+                <div class="content">
+                    <h5 style="font-weight: 500;">Jassen Elektronik</h5>
+					<input type="text"  placeholder="500" id="profit-1" class="input-profit">
+                    <h5 style="font-weight: 500;">Yudi Service Elektronik</h5>
+					<input type="text"  placeholder="500" id="profit-2" class="input-profit">
+                    <h5 style="font-weight: 500;">Anto Service Elektronik</h5>
+					<input type="text"  placeholder="500" id="profit-3" class="input-profit">
+                    <h5 style="font-weight: 500;">Service TV Cas Aki</h5>
+					<input type="text"  placeholder="500" id="profit-4" class="input-profit">
+                    <h5 style="font-weight: 500;">Trisno Jaya Servis</h5>
+					<input type="text"  placeholder="500" id="profit-5" class="input-profit">
+                    <h5 style="font-weight: 500;">Zul Service Elektronik</h5>
+					<input type="text"  placeholder="500" id="profit-6" class="input-profit">
+                    <h5 style="font-weight: 500;">Titi Service Elektornik</h5>
+					<input type="text"  placeholder="500" id="profit-7" class="input-profit">
+                </div>
+            </div>
+            <div class="content-6">
+                <button style="background-color: blue;" class="collapsible-2">INFO</button>
+                <div class="content2" id="content-kanan">
+                    <h4 style="margin-bottom: 16px;">INFO :</h4>
+                    <h5 style="margin-bottom: 8px;" id="total-jarak">Total Jarak : </h5>
+                    <h5 style="margin-bottom: 8px;" id="total-beban">Total Beban : </h5>
+                    <h5 style="margin-bottom: 8px;" id="total-profit">Total Profit : </h5>
+                </div>
+                <!-- <button style="background-color: blue;">BEST</button> -->
+                <button style="background-color: blue;" class="collapsible-2">PATH</button>
+                <div class="content3" id="content-kanan">
+                    <h4 style="margin-bottom: 16px;">PATH :</h4>
+                    <h5 style="margin-bottom: 8px;" id="path-lokasi">Jassen Elektronik -> Titi Service Elektronik -> Zul Service Elektronik</h5>
+                </div>
+                <!-- <button style="background-color: green;">START</button> -->
+            </div>
+        </div>
+    </div>
+    <canvas id="map" width="200" height="100">
+        <p>Your browser does not support canvas.</p>
+    </canvas>
+</body>
+<script>
+    var c = document.getElementById("map");
+    var ctx = c.getContext("2d");
+    let scale = 0.3;
+    const circleMarker= [
+        [702,360],
+        [633,403],
+        [500,287],
+        [821,298],
+        [939,400],
+        [826,490],
+        [744,910]
+    ];
+
+    const nameMarker = [
+        [638,310],
+        [437,380],
+        [415,235],
+        [750,245],
+        [957,380],
+        [845,465],
+        [565,885]
+    ];
+
+    const textMarker = [
+        "Jassen Elektronik",
+        "Yudi Service Elektronik",
+        "Anto Service Elektronik",
+        "Service TV Cas Aki",
+        "Trisno Jaya Servis",
+        "Zul Service Elektronik",
+        "Titi Service Elektornik"
+    ];
+
+    let maxBeban = 500;
+
+    let bebanMarker = [
+        0,150,200,200,150,150,100
+    ];
+
+    let bebanMarker2 = []
+    for (let i = 0; i < bebanMarker.length; i++) {
+        bebanMarker2.push(bebanMarker.map((item, idx) => (idx === i)?0:item).flat());
+    }
+    // console.log(bebanMarker2);
+
+    let profitMarker = [
+        0,5000,1000,9000,19000,49000,9000000
+    ];
+
+    let profitMarker2 = []
+    for (let i = 0; i < profitMarker.length; i++) {
+        profitMarker2.push(profitMarker.map((item, idx) => (idx === i)?0:item).flat());
+    }
+    // console.log(profitMarker2);
+
+
+    const distanceMarker = [
+        [0, 8.4, 3.7, 3.5, 5.8, 4.2, 10.3],
+        [6.5, 0, 6, 7.1, 7.3, 5.7, 11.8],
+        [3.7, 4.6, 0, 7.3, 10.1, 8.5, 14.7],
+        [3.5, 9.1, 7.3,	0, 6.3,	4.7, 10.8],
+        [5.8, 9.3, 9.5, 6.3, 0, 2.5, 10.3],
+        [4.2, 7.7, 7.9, 4.7, 2.5, 0, 8.3],
+        [10.2, 13.8, 14.6, 10.8, 10.2, 8.3, 0]
+    ]
+    
+    const img = new Image();
+    img.src = "map-service.jpeg";
+    img.onload = function(){
+      renderMap();
+    };
+
+    function mapMarker(Circle, Name, Text) {
+        ctx.strokeStyle = "white";
+        ctx.beginPath();
+        ctx.arc(Circle[0],Circle[1],5,0,2*Math.PI);
+        ctx.strokeText(Text, Name[0], Name[1]);
+        ctx.fillText(Text, Name[0], Name[1]);
+        ctx.fill();
+    }
+
+    function mapDirect(To, From) {
+        ctx.strokeStyle = "red";
+        ctx.beginPath();
+        ctx.moveTo(To[0], To[1]);
+        ctx.lineTo(From[0], From[1]);
+        ctx.stroke();
+    }
+
+
+    // Fungsi untuk mencari rute terpendek menggunakan algoritma Greedy
+    function greedyTSP(graph,kotaAwal,greed) {
+        const path = [];
+        const maxWeight = document.querySelector('#max-weight').value;
+        console.log(graph);
+        const banyakKota = graph.length;
+        const visited = new Array(banyakKota).fill(false);
+        
+        const distances = distanceMarker;
+        const weight = bebanMarker;
+        const total = profitMarker;
+
+        const idxKotaAwal = 0;
+        visited[idxKotaAwal] = true;
+        let current = idxKotaAwal;
+        let sumWeight = 0;
+        let sumProfit = 0;
+        let sumDistance = 0;
+        path.push(idxKotaAwal);
+
+        for (let i = 0; i < graph.length; i++) {
+            let next = -1;
+            let min;
+            if (greed == "min") {
+                min = Infinity; //get nilai terbesar
+            } else {
+                min = -Infinity;
+            }
+            
+            for (let j = 0; j < graph[i].length; j++) {
+                //check kota yang telah dikunjungi dan check jika kota sama
+                if (!visited[j]) {
+                    //check jika jarak kurang dari min(min perlu diambil nilai terbesar untuk ini)
+                    if (greed == "min") {
+                        if (graph[current][j] < min) {
+                            next = j;
+                            // console.log(graph[[current][j]]);
+                            min = graph[current][j];
+                        }
+                    }  else{
+                        if (graph[current][j] > min) {
+                            next = j;
+                            // console.log(graph[[current][j]]);
+                            min = graph[current][j];
+                            console.log(min);
+                        }
+                    }
+                }
+            }
+
+            if (next !== -1) {
+                visited[next] = true;
+                if (sumWeight+weight[next] <= maxWeight) {
+                    path.push(next);
+                    sumWeight += weight[next];
+                    sumProfit += total[next];
+                    sumDistance += distances[i][next];
+                    current = next;
+                }
+            }
+            
+        }
+
+        //ambil lagi kota awal jika selesai
+        path.push(idxKotaAwal);
+        // console.log(path);
+        return [path, sumProfit, sumWeight, sumDistance];   
+    }
+
+    function calculateTotal(path, weights, distances, profits) {
+            let totalWeight = 0;
+            let totalDistance = 0;
+            let totalProfit = 0;
+
+            for (let i = 0; i < path.length - 1; i++) {
+                const from = path[i];
+                const to = path[i + 1];
+
+                totalWeight += weights[to];
+                totalDistance += distances[from][to];
+                totalProfit += profits[to];
+            }
+
+            return [totalWeight, totalDistance, totalProfit];
+        }
+
+    function start() {
+        let graph;
+        const type = document.querySelector('#select-variasi').value;
+    
+        if (type == "jarak") {
+            graph = distanceMarker;
+        } else if (type == "beban"){
+            graph = bebanMarker2;
+        } else if (type == "profit"){
+            graph = profitMarker2;
+            console.log(graph);
+        } 
+        const kotaAwal = 0
+        const greed = document.querySelector('#select-max-min').value;
+
+        [path, profit, weight, distance] = greedyTSP(graph,kotaAwal,greed);
+
+        // Menghitung total Beban, Jarak, dan Profit
+        const [totalWeight, totalDistance, totalProfit] = calculateTotal(path, bebanMarker, distanceMarker, profitMarker);
+
+        console.log("Total Beban:", totalWeight);
+        console.log("Total Jarak:", totalDistance);
+        console.log("Total Profit:", totalProfit);
+
+        document.querySelector('#total-beban').innerHTML = `Total Beban : ${totalWeight} Kg`;
+        document.querySelector('#total-profit').innerHTML = `Total Beban : Rp. ${totalProfit}`;
+        document.querySelector('#total-jarak').innerHTML = `Total Jarak : ${totalDistance} km`;
+        return path;
+        
+    }
+
+
+    // function renderSelect() {
+    //     const selectLokasi = document.querySelector("#select-lokasi");
+    //     let option = "";
+    //     for (let index = 0; index < textMarker.length; index++) {
+    //         option+=`
+    //             <option value="${index}">${textMarker[index]}</option>
+    //         `
+    //     }
+    //     selectLokasi.innerHTML = option;
+    // }
+
+    function renderBeban(params) {
+        
+    }
+
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+
+    for (i = 0; i < coll.length; i++) {
+    coll[i].addEventListener("click", function() {
+        this.classList.toggle("active");
+        var content = this.nextElementSibling;
+        if (content.style.display === "block") {
+        content.style.display = "none";
+        } else {
+        content.style.display = "block";
+        }
+    });
+    }
+
+    var coll2 = document.getElementsByClassName("collapsible-2");
+    var i;
+
+    for (i = 0; i < coll2.length; i++) {
+    coll2[i].addEventListener("click", function() {
+        this.classList.toggle("active");
+        var content = this.nextElementSibling;
+        if (content.style.display === "block") {
+        content.style.display = "none";
+        } else {
+        content.style.display = "block";
+        }
+    });
+    }
+
+    function setMaxWeight() {
+        maxBeban = parseInt(document.querySelector('#max-weight').value);
+    }
+
+    function setWeightToko() {
+        let newWeight = [];
+        for (let i = 0; i < bebanMarker.length; i++) {
+            newWeight.push(parseInt(document.querySelector(`#weight-${i+1}`).value));  
+            console.log(parseInt(document.querySelector(`#weight-${i+1}`).value));
+        }
+        bebanMarker = newWeight;
+
+        bebanMarker2 = []
+        for (let i = 0; i < bebanMarker.length; i++) {
+            bebanMarker2.push(bebanMarker.map((item, idx) => (idx === i)?0:item).flat());
+        }
+       
+
+    }
+
+    function setProfitToko() {
+        let newProfit = [];
+        for (let i = 0; i < profitMarker.length; i++) {
+            newProfit.push(parseInt(document.querySelector(`#profit-${i+1}`).value));   
+            console.log(parseInt(document.querySelector(`#profit-${i+1}`).value)); 
+        }
+        profitMarker = newProfit;
+      
+        profitMarker2 = []
+        for (let i = 0; i < profitMarker.length; i++) {
+            profitMarker2.push(profitMarker.map((item, idx) => (idx === i)?0:item).flat());
+        }
+    }
+
+    function renderValue() {
+        // console.log(bebanMarker);
+        // console.log(profitMarker);
+        document.querySelector('#max-weight').value = maxBeban;
+        for (let i = 0; i < bebanMarker.length; i++) {
+            document.querySelector(`#weight-${i+1}`).value = bebanMarker[i];
+            document.querySelector(`#profit-${i+1}`).value = profitMarker[i];
+        }
+    }
+
+    function renderMap() {
+        setProfitToko();
+        setWeightToko();
+        setMaxWeight();
+        c.width = img.width*scale;
+        c.height = img.height*scale;
+        ctx.drawImage(img, 0, 0, img.width*scale, img.height*scale); 
+        ctx.fillStyle = "#00000";  
+        ctx.font = "16px Poppins";
+        ctx.lineWidth = 3; // Ketebalan garis putih
+        ctx.strokeStyle = "white"; // Warna stroke putih
+
+        for (let i = 0; i < textMarker.length; i++) {
+            mapMarker(circleMarker[i],nameMarker[i],textMarker[i])
+        }
+        tspRoute = start();
+        console.log(tspRoute);
+        for (let i = 0; i < tspRoute.length-1; i++) {
+            mapDirect(circleMarker[tspRoute[i]], circleMarker[tspRoute[i+1]])
+        }
+
+    }
+
+    // renderSelect();
+    renderValue()
+    document.querySelectorAll('.input-max-beban')
+    document.querySelectorAll('.input-beban').forEach(element => {
+        element.addEventListener('change',() => {
+            setWeightToko();
+            renderMap();
+        })
+    });
+
+    document.querySelectorAll('.input-profit').forEach(element => {
+        element.addEventListener('change',() => {
+            setProfitToko();
+            renderMap();
+        })
+    });
+
+
+    
+
+</script> 
+</html>

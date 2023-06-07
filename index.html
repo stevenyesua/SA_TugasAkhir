@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Project Akhir</title>
+</head>
+<body>
+<div class="top">
+    <div class="title">Pencarian Rute Pengangkutan Sampah Terbaik di Palembang</div>
+<!-- Trigger/Open The Modal -->
+    <button id="myBtn">Cari</button>    
+</div>
+<!-- The Modal -->
+<div id="myModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <div class="menu">
+        <div class="tetak 2 row" style="gap:30px;">
+            <div class="sub-menu">
+                <label>Pilih titik awal TPS</label>
+                <select id="tps">
+                    <option value="0">TPS Kota Baru</option>
+                    <option value="1">TPS Pasundan Kalidoni</option>
+                    <option value="2">TPS Sultan Syahrir</option>
+                    <option value="3">TPS Seberang PI</option>
+                    <option value="4">TPS Yamaha</option>
+                    <option value="5">TPS Panca Usaha</option>
+                    <option value="6">TPS Pulau Layang</option>
+                </select>
+            </div>
+            <div class="sub-menu">
+                <label>Greedy Min/Max</label>
+                <select id="greed">
+                    <option value="min">Min</option>
+                    <option value="max">Max</option>
+                </select>
+            </div>
+            <div class="sub-menu">
+                <label>Tipe Greedy</label>
+                <select id="type">
+                    <option value="distances">Distance</option>
+                    <option value="weight">Weight</option>
+                    <option value="profit">Profit</option>
+                </select>
+            </div>
+        </div>
+        <div class="tetak 2 row" style="gap:60px;">
+            <div class="sub-menu row">
+                <label>Weight</label>
+                <div class="weight_menu">
+                    <label id="l1">TPS Kota Baru</label>
+                    <br>
+                    <input type="number" name="" id="weight_0">
+                    <br>
+                    <label id="l1">TPS Pasundan Kalidoni</label>
+                    <br>
+                    <input type="number" name="" id="weight_1">
+                    <br>
+                    <label id="l1">TPS Sultan Syahrir</label>
+                    <br>
+                    <input type="number" name="" id="weight_2">
+                    <br>
+                    <label id="l1">TPS Seberang PI</label>
+                    <br>
+                    <input type="number" name="" id="weight_3">
+                    <br>
+                    <label id="l1">TPS Yamaha</label>
+                    <br>
+                    <input type="number" name="" id="weight_4">
+                    <br>
+                    <label id="l1">TPS Panca Usaha</label>
+                    <br>
+                    <input type="number" name="" id="weight_5">
+                    <br>
+                    <label id="l1">TPS Pulau Layang</label>
+                    <br>
+                    <input type="number" name="" id="weight_6">
+                    <br>
+                    <label id="l1">Weight Maximum</label>
+                    <br>
+                    <input type="number" name="" id="weightMax">
+                    <br>
+                </div>
+            </div>
+            <div class="sub-menu row">
+                <label>Profit</label>
+                <div class="profit_menu">
+                    <label id="l1">TPS Kota Baru</label>
+                    <br>
+                    <input type="number" name="" id="profit_0">
+                    <br>
+                    <label id="l1">TPS Pasundan Kalidoni</label>
+                    <br>
+                    <input type="number" name="" id="profit_1">
+                    <br>
+                    <label id="l1">TPS Sultan Syahrir</label>
+                    <br>
+                    <input type="number" name="" id="profit_2">
+                    <br>
+                    <label id="l1">TPS Seberang PI</label>
+                    <br>
+                    <input type="number" name="" id="profit_3">
+                    <br>
+                    <label id="l1">TPS Yamaha</label>
+                    <br>
+                    <input type="number" name="" id="profit_4">
+                    <br>
+                    <label id="l1">TPS Panca Usaha</label>
+                    <br>
+                    <input type="number" name="" id="profit_5">
+                    <br>
+                    <label id="l1">TPS Pulau Layang</label>
+                    <br>
+                    <input type="number" name="" id="profit_6">
+                </div>
+            </div>
+        </div>
+        <button id="btn_cari" onclick="titik_mulai()">Cari Rute</button>
+    </div>
+</div>
+
+</div>
+
+<canvas id="myCanvas">Your browser does not support the canvas tag.</canvas>
+
+
+<script>
+let c = document.getElementById("myCanvas");
+let ctx = c.getContext("2d");
+let scale = 1;
+const titik_tps = [[393, 67], [1177,92], [939,210], [537,367], [778, 668], [748, 717], [1452, 772]];
+const jarak_tps = [
+    [0, 9.4, 8.5, 4.8, 8.3, 8.9, 15.1],
+    [9.4, 0, 3.2, 10.6, 9.2, 9.8, 12.2],
+    [8.5, 3.2, 0, 5.3, 6.6, 7.2, 10.5], 
+    [4.8, 10.6, 5.3, 0, 4.8, 5.4, 11.6],
+    [8.3, 9.2, 6.6, 4.8, 0, 0.6, 8], 
+    [8.9, 9.8, 7.2, 5.4, 0.6, 0, 9.5], 
+    [15.1, 12.2, 10.5, 11.6, 8, 9.5, 0]
+]
+let weight = [10,20,30,10,20,10,10]
+let weight2 = []
+for (let index = 0; index < weight.length; index++) {
+    weight2.push(weight.map((item, idx) => (idx === index)?0:item).flat());
+}
+// console.log(weight2);
+
+let profit = [100000,200000,300000,400000,500000,600000,700000]
+let profit2 = []
+for (let index = 0; index < profit.length; index++) {
+    profit2.push(profit.map((item, idx) => (idx === index)?0:item).flat());
+}
+// console.log(profit2);
+
+let maxWeight = 150;
+
+const img = new Image();
+img.src = "Map.png";
+img.onload = () => {
+    c.width = img.width*scale;
+    c.height = img.height*scale;
+    ctx.drawImage(img, 0, 0, img.width*scale, img.height*scale);
+    for (let index = 0; index < titik_tps.length; index++) {
+        titik_poin(titik_tps[index][0],titik_tps[index][1]);
+    };
+    result = tspGreedy(jarak_tps, 0);
+    for (let index = 0; index < result.path.length-1; index++) {
+        garis(result.path[index], result.path[index+1]);
+        // console.log(route[index+1], index);
+       
+    }
+    // garis(0, 2)
+}
+
+function titik_mulai(){
+    const select = document.querySelector('#tps').value;
+    const select_tipe = document.querySelector('#greed').value;
+    const select_versi = document.querySelector('#type').value;
+    // console.log(weight);
+    // console.log(profit);
+    setWeight();
+    setProfit();
+    // console.log(weight);
+    // console.log(profit);
+    c.width = img.width*scale;
+    c.height = img.height*scale;
+    ctx.drawImage(img, 0, 0, img.width*scale, img.height*scale);
+
+    for (let index = 0; index < titik_tps.length; index++) {
+        titik_poin(titik_tps[index][0],titik_tps[index][1]);
+    };
+
+    let graph;
+
+    if(select_versi == "distances"){ 
+        graph = jarak_tps;
+    }
+    else if(select_versi == "weight"){
+        graph = weight2;
+    }
+    else{
+        graph = profit2;
+    }
+    
+    if(select_tipe == "min"){ 
+        result = tspGreedy(graph, parseInt(select));
+    }
+    else{
+        result = tspGreedyMax(graph, parseInt(select));
+    }
+
+    for (let index = 0; index < result.path.length-1; index++) {
+        garis(result.path[index], result.path[index+1]);
+    }
+
+
+}
+
+function setWeight(){
+    let newWeight = [];
+    for (let index = 0; index < weight.length; index++) {
+        newWeight.push(parseInt(document.querySelector(`#weight_${index}`).value))
+    }
+    weight = newWeight;
+    weight2 =[];
+    for (let index = 0; index < weight.length; index++) {
+    weight2.push(weight.map((item, idx) => (idx === index)?0:item).flat());
+    }
+    maxWeight = document.querySelector(`#weightMax`).value;
+}
+
+function setProfit() {
+    let newProfit = [];
+    for (let index = 0; index < profit.length; index++) {
+        newProfit.push(parseInt(document.querySelector(`#profit_${index}`).value))
+    }
+    profit = newProfit;
+    profit2 = [];
+    for (let index = 0; index < profit.length; index++) {
+    profit2.push(profit.map((item, idx) => (idx === index)?0:item).flat());
+    }    
+}
+
+function renderValue(){
+    for (let index = 0; index < weight.length; index++) {
+        document.querySelector(`#weight_${index}`).value = weight[index];
+        document.querySelector(`#profit_${index}`).value = profit[index];
+    }
+    document.querySelector(`#weightMax`).value = maxWeight;
+}
+
+
+function titik_poin(x,y){
+    ctx.beginPath();
+    ctx.arc(x, y, 2.5, 0, 2 * Math.PI);
+    ctx.fillStyle = "#FF0000";
+    ctx.fill();
+}
+    
+function garis(lineTo, moveTo){
+    ctx.beginPath();
+    ctx.moveTo(titik_tps[moveTo][0], titik_tps[moveTo][1]);
+    ctx.lineTo(titik_tps[lineTo][0], titik_tps[lineTo][1]);
+    ctx.stroke();
+}
+
+function tspGreedy(graph, startNode) {
+    console.log(graph);
+  const numNodes = graph.length;
+  const visited = new Array(numNodes).fill(false);
+  visited[startNode] = true;
+  console.log(visited);
+
+  let currentNode = startNode;
+  let path = [startNode];
+  let totalDistance = 0;
+  let totalWeight = 0;
+  let totalProfit = 0;
+
+  for (let i = 0; i < numNodes; i++) {
+    let nextNode = -1;
+    let minDistance = Infinity;
+
+    for (let j = 0; j < numNodes; j++) {
+
+      if (!visited[j]) {
+        if (graph[currentNode][j] < minDistance) {
+            nextNode = j;
+            minDistance = graph[currentNode][j];
+            // console.log(visited);
+        }
+      }
+    }
+
+    if (nextNode != - 1) {
+        visited[nextNode] = true;
+        if (totalWeight + weight[nextNode] <= maxWeight) {
+            path.push(nextNode);
+            totalDistance += minDistance;
+            totalWeight += weight[nextNode];
+            totalProfit += profit[nextNode];
+            currentNode = nextNode;
+        }
+    }
+  }
+
+  // Kembali ke titik awal
+  path.push(startNode);
+  totalDistance += graph[currentNode][startNode];
+
+  return {path, totalDistance, totalWeight, totalProfit};
+} 
+
+function tspGreedyMax(graph, startNode) {
+  const numNodes = graph.length;
+  const visited = new Array(numNodes).fill(false);
+  visited[startNode] = true;
+
+  let currentNode = startNode;
+  let path = [startNode];
+  let totalDistance = 0;
+  let totalWeight = 0;
+  let totalProfit = 0;
+
+  for (let i = 0; i < numNodes - 1; i++) {
+    let nextNode;
+    let maxDistance = -Infinity;
+
+    for (let j = 0; j < numNodes; j++) {
+      if (!visited[j] && graph[currentNode][j] > maxDistance) {
+        nextNode = j;
+        maxDistance = graph[currentNode][j];
+      }
+    }
+
+    if (totalWeight + weight[nextNode] <= maxWeight) {
+        visited[nextNode] = true;
+        path.push(nextNode);
+        totalDistance += maxDistance;
+        totalWeight += weight[nextNode];
+        totalProfit += profit[nextNode];
+        currentNode = nextNode;
+        console.log(totalWeight);
+        console.log(totalDistance);
+        console.log(totalProfit);
+    }
+  }
+
+  // Kembali ke titik awal
+  path.push(startNode);
+  totalDistance += graph[currentNode][startNode];
+
+  return {path, totalDistance};
+} 
+
+
+
+// Get the modal
+var modal = document.getElementById("myModal");
+
+// Get the button that opens the modal
+var btn = document.getElementById("myBtn");
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+
+// When the user clicks the button, open the modal 
+btn.onclick = function() {
+  modal.style.display = "block";
+  renderValue();
+}
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() {
+  modal.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}
+</script>
+
+
+</body>
+</html>
