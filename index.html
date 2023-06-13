@@ -409,7 +409,7 @@
         ctx.font = "16px Poppins";
         ctx.lineWidth = 3; // Ketebalan garis putih
         ctx.strokeStyle = "white"; // Warna stroke putih
-
+        
         for (let i = 0; i < textMarker.length; i++) {
             mapMarker(circleMarker[i],nameMarker[i],textMarker[i])
         }
@@ -418,7 +418,7 @@
         for (let i = 0; i < tspRoute.length-1; i++) {
             mapDirect(circleMarker[tspRoute[i]], circleMarker[tspRoute[i+1]])
         }
-
+        renderPath(tspRoute);
     }
 
     // renderSelect();
@@ -437,6 +437,13 @@
             renderMap();
         })
     });
+
+
+
+    function renderPath(rute){
+        const path = document.querySelector(`#path-lokasi`);
+        path.innerHTML = `${rute.map(map=>textMarker[map]).join('->')}`    
+    }
 
 
     
